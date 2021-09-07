@@ -3,11 +3,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import NewGuiBot
 import mysql.connector
 
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  database="account"
-)
 
 ver = "3.0"
 class Ui_MainWindow(object):
@@ -231,7 +226,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if(login==testl and password == testp):
                 print("poprawne Dane")
-                NewGuiBot()
+
         else:
               print("nieporpawne dane")
 
