@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-ver = "Beta v3.0"
+ver = "Beta v3.3"
 verInfo = verInfo = "<p>Aktualizacja "+ver+":</p> <p>Informacje o poszczególnych polach</p><p>Zakres obserwacji Bota od 3 do 30</p>"
 
 class Ui_MainWindow(object):
