@@ -606,7 +606,7 @@ class MainWindow(QtWidgets.QMainWindow):
             event.accept()
 
 if __name__ == "__main__":
-    import sys, res
+    import sys
     app = QtWidgets.QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     w = MainWindow()
