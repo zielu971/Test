@@ -1,4 +1,4 @@
-
+#import packs
 import csv
 import psycopg2
 import pandas as pd
@@ -9,10 +9,13 @@ import pickle
 import os 
 from threading import Thread
 
+#Threading function 
 def T_Import():
+    blindLabel.config(text='')
     thread2 = Thread(target=import_data)
     thread2.start()
 
+#Import data to database 
 def import_data():
     file = textbox1.get()
     table = textbox2.get()
@@ -21,8 +24,9 @@ def import_data():
     user_name= textbox5.get()
     password_name= textbox6.get()
     port_name = textbox7.get()
-    length = length_cols(file)
-    #print(length)
+    delimeters = snifer(file)
+    length = length_cols(file, delimeters)
+    print(length)
     s_value =''
     conn = psycopg2.connect(database=database_name,
                                 host=host_name,
@@ -35,10 +39,10 @@ def import_data():
             s_value = '%s'
         else:
             s_value = s_value + ', %s' 
-    #print(s_value)
+    print(s_value)
 
     with open(file, 'r') as f:
-        reader = csv.reader(f)
+        reader = csv.reader(f,delimiter=delimeters)
         next(reader) # Skip the header row.
         for row in reader:
             cur.execute(
@@ -49,13 +53,20 @@ def import_data():
     filename= os.path.basename(file)
     blindLabel.config(text='Zaimportowano plik: '+filename)
 
-def length_cols(file):
-    data = pd.read_csv(file).columns
+#Cols length for loop
+def length_cols(file, delimeters):
+    deli = delimeters 
+    data = pd.read_csv(file,delimiter = deli).columns
     length = len(data)
     return(length)
 
-#GUI
+#Delimeter recogniser 
+def snifer(file):
+    with open(file, 'r') as csvfile:
+        deli = csv.Sniffer().sniff(csvfile.read(1024))
+    return(deli.delimiter)
 
+#GUI
 window = Tk()
 window.title("Import CSV By Daniel Zielinski")
 window.resizable(False, False)
