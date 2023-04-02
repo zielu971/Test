@@ -8,6 +8,7 @@ from tkinter import filedialog
 import pickle
 import os 
 from threading import Thread
+from tqdm import tqdm
 
 #Threading function 
 def T_Import():
@@ -26,7 +27,9 @@ def import_data():
     port_name = textbox7.get()
     delimeters = snifer(file)
     length = length_cols(file, delimeters)
-    print(length)
+    len = sum1forline(file) -1
+    print('ilosc kolumn: ' + str(length))
+    print('ilosc wierszy: '+ str(len))
     s_value =''
     conn = psycopg2.connect(database=database_name,
                                 host=host_name,
@@ -39,33 +42,61 @@ def import_data():
             s_value = '%s'
         else:
             s_value = s_value + ', %s' 
-    print(s_value)
+    print('ilość kolumn do zastąpienia: '+ s_value)
 
-    with open(file, 'r') as f:
-        reader = csv.reader(f,delimiter=delimeters)
-        next(reader) # Skip the header row.
-        for row in reader:
-            cur.execute(
-            "INSERT INTO "+table+" VALUES ("+s_value+")",
-            row
-        )
-    conn.commit()
-    filename= os.path.basename(file)
-    blindLabel.config(text='Zaimportowano plik: '+filename)
+    #Check of how much rows has table to update 
+    postgreSQL_select_Query = "SELECT count(*) FROM information_schema.columns WHERE table_name = '"+table+"'"
+    cur.execute(postgreSQL_select_Query)
+    mobile_records = cur.fetchall()
+    print('ilość kolumn w bazie: '+str(mobile_records[0][0]))
+
+    #Import data if columns in file are smaller or equal to columns in database
+    if mobile_records[0][0] >= length:
+        with open(file, 'r', encoding='utf-8') as f:
+            if delimeters == 'BRAK':
+                reader = csv.reader(f)
+            else:  
+                reader = csv.reader(f,delimiter=delimeters)
+            next(reader) # Skip the header row.
+            for row in tqdm(reader, desc="Updating row: ...", total = len):
+                cur.execute(
+                "INSERT INTO "+table+" VALUES ("+s_value+")",
+                row
+            )
+        conn.commit()
+        filename= os.path.basename(file)
+        blindLabel.config(text='Zaimportowano plik: '+filename)
+    else:
+        filename= os.path.basename(file)
+        print('Zła ilosc kolumn w pliku importowym')
+        blindLabel.config(text='Sprawdz ilosc kolumn w pliku: '+filename)
 
 #Cols length for loop
 def length_cols(file, delimeters):
-    deli = delimeters 
-    data = pd.read_csv(file,delimiter = deli).columns
-    length = len(data)
+    if delimeters == 'BRAK':
+        length = 1
+    else:
+        deli = delimeters 
+        data = pd.read_csv(file,delimiter = deli).columns
+        length = len(data)
     return(length)
 
 #Delimeter recogniser 
 def snifer(file):
-    with open(file, 'r') as csvfile:
-        deli = csv.Sniffer().sniff(csvfile.read(1024))
-    return(deli.delimiter)
 
+    with open(file, 'r', encoding='utf-8') as csvfile:
+        try:
+            deli = csv.Sniffer().sniff(csvfile.read(1024))
+            a = deli.delimiter
+        except:
+            a ='BRAK'
+        return(a)
+
+#Rows length for loop
+def sum1forline(filename):
+    with open(filename, 'r', encoding='utf-8') as f:
+        return sum(1 for line in f)
+    
 #GUI
 window = Tk()
 window.title("Import CSV By Daniel Zielinski")
