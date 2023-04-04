@@ -27,9 +27,15 @@ def import_data():
     port_name = textbox7.get()
     delimeters = snifer(file)
     length = length_cols(file, delimeters)
-    len = sum1forline(file) -1
+    len_rows = sum1forline(file) -1
     print('ilosc kolumn: ' + str(length))
-    print('ilosc wierszy: '+ str(len))
+    print('ilosc wierszy: '+ str(len_rows))
+    dot_table = table.find(".")
+    schema_name = table[0:dot_table]
+    table_len = len(table)
+    table_name = table [(dot_table+1):table_len]
+
+    print(table, dot_table, schema_name, table_name)
     s_value =''
     conn = psycopg2.connect(database=database_name,
                                 host=host_name,
@@ -43,9 +49,9 @@ def import_data():
         else:
             s_value = s_value + ', %s' 
     print('ilość kolumn do zastąpienia: '+ s_value)
-
+    
     #Check of how much rows has table to update 
-    postgreSQL_select_Query = "SELECT count(*) FROM information_schema.columns WHERE table_name = '"+table+"'"
+    postgreSQL_select_Query = "SELECT count(*) FROM information_schema.columns WHERE schema_name = '"+schema_name+"' and table_name = '"+table_name+"'"
     cur.execute(postgreSQL_select_Query)
     mobile_records = cur.fetchall()
     print('ilość kolumn w bazie: '+str(mobile_records[0][0]))
