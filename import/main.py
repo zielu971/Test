@@ -51,7 +51,7 @@ def import_data():
     print('ilość kolumn do zastąpienia: '+ s_value)
     
     #Check of how much rows has table to update 
-    postgreSQL_select_Query = "SELECT count(*) FROM information_schema.columns WHERE schema_name = '"+schema_name+"' and table_name = '"+table_name+"'"
+    postgreSQL_select_Query = "SELECT count(*) FROM information_schema.columns WHERE table_schema = '"+schema_name+"' and table_name = '"+table_name+"'"
     cur.execute(postgreSQL_select_Query)
     mobile_records = cur.fetchall()
     print('ilość kolumn w bazie: '+str(mobile_records[0][0]))
