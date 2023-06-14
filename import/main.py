@@ -1,3 +1,28 @@
+$sourceFilePath = "C:\ścieżka\do\twojego\pliku.pdf"
+$destinationFilePath = "C:\ścieżka\do\wynikowego\pliku.pdf"
+
+$acrobat = New-Object -ComObject "AcroExch.App"
+$avDocs = $acrobat.GetAVDocs()
+
+$sourceDoc = $avDocs.Open($sourceFilePath, "")
+$jsObject = $sourceDoc.GetJSObject()
+
+# Ustawienia drukowania
+$printerName = "Adobe PDF"
+$jsObject.printerName = $printerName
+$jsObject.printWithDialogs = $false  # Drukuj bez pokazywania dialogów
+
+# Wydrukuj do pliku PDF
+$jsObject.printAll()
+
+# Zapisz wynikowy plik PDF
+$sourceDoc.Save(1, $destinationFilePath)
+
+$sourceDoc.Close()
+$acrobat.Exit()
+
+
+
 #import packs
 import csv
 import psycopg2
